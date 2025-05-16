@@ -1,17 +1,99 @@
 import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import { useState, useEffect, useContext } from 'react';
-import { ScreenContext } from './ScreenContext.js';
+import { ScreenContext } from './ScreenContext';
 
-const Clase = ({ navigation }) => {
-  const { info } = useContext(ScreenContext);
+const Clase = ({ navigation, route }) => {
+  const { data: info } = route.params;
+  const { userId } = useContext(ScreenContext);
 
   const [reservado, setReservado] = useState(false);
   const [color, setColor] = useState('green');
   const [txt, setTxt] = useState('Reservar');
 
-  const reservar = () => {
-    setReservado(!reservado);
+  const [ocupadas, setOcupadas] = useState(info.ocupadas);
+
+  const formatHora = (hora) => hora?.slice(0, 5);
+
+  useEffect(() => {
+    const comprobarReserva = async () => {
+      try {
+        const response = await fetch(
+          `https://api-nodejs-mysql-production-9366.up.railway.app/classes/${info.id}/check-user`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: userId }),
+          }
+        );
+
+        const text = await response.text();
+
+        const data = JSON.parse(text);
+
+        if (data.reservado) {
+          setReservado(true);
+        }
+      } catch (error) {
+        console.error('Error comprobando reserva:', error);
+      }
+    };
+
+    comprobarReserva();
+  }, []);
+
+  const reservar = async () => {
+    try {
+      if (!reservado) {
+        // RESERVAR clase
+        const response = await fetch(
+          `https://api-nodejs-mysql-production-9366.up.railway.app/classes/${info.id}/add-user`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: userId }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log('Clase reservada:', data);
+          setReservado(true);
+          setOcupadas((prev) => prev + 1); // 👈 aumenta participantes
+        } else {
+          console.error('Error al reservar:', data.error);
+        }
+      } else {
+        // CANCELAR reserva
+        const response = await fetch(
+          `https://api-nodejs-mysql-production-9366.up.railway.app/classes/${info.id}/remove-user`,
+          {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: userId }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log('Reserva cancelada:', data);
+          setReservado(false);
+          setOcupadas((prev) => Math.max(prev - 1, 0)); // 👈 reduce participantes sin bajar de 0
+        } else {
+          console.error('Error al cancelar:', data.error);
+        }
+      }
+    } catch (error) {
+      console.error('Error al procesar la acción de reserva:', error);
+    }
   };
 
   useEffect(() => {
@@ -41,18 +123,14 @@ const Clase = ({ navigation }) => {
 
       <View style={styles.claseContainer}>
         <Text style={styles.infoTxt}>
-          Clase de {info.actividad} empieza a las 12:00 y termina a las 13:00
+          Clase de {info.actividad} empieza a las {formatHora(info.horaInicio)}{' '}
+          y termina a las {formatHora(info.horaFinal)}
         </Text>
-        <Image
-          source={{
-            uri: info.imagen,
-          }}
-          style={styles.foto}
-        />
+        <Image source={{ uri: info.imagen }} style={styles.foto} />
         <View style={styles.infoContainer}>
           <Text style={styles.cantidadTxt}>Monitor: {info.monitor}</Text>
           <Text style={styles.cantidadTxt}>
-            Participantes: {info.ocupadas}/{info.max}
+            Participantes: {ocupadas}/{info.max}
           </Text>
         </View>
       </View>
@@ -67,6 +145,7 @@ const Clase = ({ navigation }) => {
     </View>
   );
 };
+
 export default Clase;
 
 const styles = StyleSheet.create({
@@ -116,7 +195,7 @@ const styles = StyleSheet.create({
   },
   botonContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 50,
   },
   boton: {
     borderRadius: 20,

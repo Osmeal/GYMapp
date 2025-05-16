@@ -1,12 +1,45 @@
 import { useState } from 'react';
-import { Text, View, StyleSheet, Image, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, Image, ScrollView, Alert } from 'react-native';
 import { TextInput, Button, Dialog, Portal } from 'react-native-paper';
+import { useContext } from 'react';
+import { ScreenContext } from './ScreenContext';
 
 const Login = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
+
+  const { setUserId } = useContext(ScreenContext);
 
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch(
+        'https://api-nodejs-mysql-production-9366.up.railway.app/user',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUserId(data.user.id);
+        navigation.navigate('MenuInicial');
+      } else {
+        Alert.alert('Error', data.error || 'Credenciales incorrectas');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'No se pudo conectar con el servidor');
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -18,18 +51,16 @@ const Login = ({ navigation }) => {
         <TextInput
           style={styles.input}
           label="Email"
-          underlineColor="yellow"
-          outlineColor="yellow"
-          activeOutlineColor="yellow"
+          value={email}
+          onChangeText={setEmail}
           mode="flat"
         />
 
         <TextInput
           style={styles.input}
           label="Password"
-          underlineColor="yellow"
-          outlineColor="yellow"
-          activeOutlineColor="yellow"
+          value={password}
+          onChangeText={setPassword}
           mode="flat"
           secureTextEntry
         />
@@ -39,17 +70,14 @@ const Login = ({ navigation }) => {
       </View>
 
       <View style={styles.buttonContainer}>
+        <Button mode="elevated" onPress={handleLogin}>
+          Iniciar sesión
+        </Button>
+
         <Button
-          mode="contained"
-          buttonColor="Yellow"
-          rippleColor="yellow"
+          mode="elevated"
           onPress={() => navigation.navigate('Crear Cuenta')}>
           Crear cuenta
-        </Button>
-        <Button
-          mode="outlined"
-          onPress={() => navigation.navigate('MenuInicial')}>
-          Iniciar sesión
         </Button>
       </View>
 
@@ -61,14 +89,7 @@ const Login = ({ navigation }) => {
               Para recuperar tu contraseña, por favor revisa tu correo
               electrónico registrado y sigue las instrucciones.
             </Text>
-            <TextInput
-              style={styles.input}
-              label="Email"
-              underlineColor="yellow"
-              outlineColor="yellow"
-              activeOutlineColor="yellow"
-              mode="flat"
-            />
+            <TextInput style={styles.input} label="Email" mode="flat" />
           </Dialog.Content>
           <Dialog.Actions
             style={{
@@ -115,7 +136,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    marginTop: '30%',
+    marginTop: '20%',
     justifyContent: 'space-evenly',
   },
   text: {

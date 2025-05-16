@@ -11,21 +11,13 @@ const Perfil = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.inputsContainer}>
-        <TextInput
-          style={styles.input}
-          label="Email"
-          underlineColor="yellow"
-          outlineColor="yellow"
-          activeOutlineColor="yellow"
-          mode="flat"
-        />
+        <TextInput style={styles.input} label="Name" mode="flat" />
+
+        <TextInput style={styles.input} label="Email" mode="flat" />
 
         <TextInput
           style={styles.input}
           label="Password"
-          underlineColor="yellow"
-          outlineColor="yellow"
-          activeOutlineColor="yellow"
           mode="flat"
           secureTextEntry
         />
@@ -34,16 +26,14 @@ const Perfil = ({ navigation }) => {
       <View style={styles.buttonContainer}>
         <Button
           style={styles.boton}
-          mode="contained"
-          color="#0f9fff"
+          mode="elevated"
           onPress={() => showDialog()}>
           Guardar Cambios
         </Button>
 
         <Button
           style={styles.boton}
-          mode="contained"
-          color="#0f9fff"
+          mode="elevated"
           onPress={() => navigation.navigate('LogIn')}>
           Cerrar Sesion
         </Button>
@@ -57,14 +47,7 @@ const Perfil = ({ navigation }) => {
               Para recuperar tu contraseña, por favor revisa tu correo
               electrónico registrado y sigue las instrucciones.
             </Text>
-            <TextInput
-              style={styles.input}
-              label="Email"
-              underlineColor="yellow"
-              outlineColor="yellow"
-              activeOutlineColor="yellow"
-              mode="flat"
-            />
+            <TextInput style={styles.input} label="Email" mode="flat" />
           </Dialog.Content>
           <Dialog.Actions
             style={{
@@ -94,10 +77,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     margin: 8,
     borderRadius: 10,
+    marginBottom: 90
   },
   boton: {
     marginTop: 20,
-    marginHorizontal: 10
+    marginHorizontal: 10,
   },
   inputsContainer: {
     justifyContent: 'center',

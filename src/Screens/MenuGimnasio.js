@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Clases from './Clases.js';
-import Perfil from './Perfil.js';
+import Horario from './Horario.js';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 
 const MenuGimnasio = ({ navigation }) => {
@@ -43,7 +43,7 @@ const MenuGimnasio = ({ navigation }) => {
         {selected == 'Clases' ? (
           <Clases navigation={navigation} />
         ) : (
-          <Perfil navigation={navigation} />
+          <Horario navigation={navigation} />
         )}
       </View>
     </View>

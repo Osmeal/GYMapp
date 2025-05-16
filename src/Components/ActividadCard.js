@@ -1,13 +1,27 @@
 import { StyleSheet } from 'react-native';
 import { Avatar, Card } from 'react-native-paper';
 
-const Actividad = ({ actividad, monitor, max, ocupadas, icono, retornacion }) => {
+const Actividad = ({
+  id,
+  actividad,
+  monitor,
+  max,
+  ocupadas,
+  icono,
+  retornacion,
+  imagen,
+  horaInicio,
+  horaFinal,
+}) => {
   const infoActividad = {
+    id,
     actividad,
     monitor,
     max,
     ocupadas,
-    imagen: 'https://coachs-challenges.com/wp-content/uploads/2018/02/formation_spinning.jpg',
+    imagen: imagen,
+    horaInicio,
+    horaFinal,
   };
 
   return (
@@ -25,7 +39,6 @@ const Actividad = ({ actividad, monitor, max, ocupadas, icono, retornacion }) =>
 };
 
 export default Actividad;
-
 
 const styles = StyleSheet.create({
   card: {
